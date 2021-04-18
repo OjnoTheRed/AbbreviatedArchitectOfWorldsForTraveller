@@ -1,8 +1,13 @@
+var ALL_WORLDS = [];
 function generateWorlds()
 {
+	ALL_WORLDS = [];
 	init_rng(Date.now());
 	var sandbox = document.getElementById("sandbox");
+	while(sandbox.hasChildNodes())
+		sandbox.removeChild(sandbox.childNodes[0]);
 	var myTable = document.createElement("TABLE");
+	var numWorlds = parseInt(document.getElementById("numWorlds").value);
 	sandbox.appendChild(myTable);
 	var hdrRow = document.createElement("TR");
 	myTable.appendChild(hdrRow);
@@ -25,23 +30,44 @@ function generateWorlds()
 	hdrC.innerHTML = "Stellar";
 	hdrRow.appendChild(hdrC);
 	var namesIndex = [];
-	for(var i=0;i<100;i++)
+	for(var i=0;i<numWorlds;i++)
 	{
 		var myWorld = new world();
-		do
+		var origName = provName = worldNames[rng(worldNames.length-1)];
+		var n = 2;
+		while(namesIndex.find(function(n) { return n == provName }) !== undefined)
 		{
-			myWorld.name = worldNames[rng(worldNames.length-1)];
+			provName = origName + "-" + n++;
 		}
-		while(namesIndex.find(function(n) { return n == myWorld.name }) !== undefined)
+		myWorld.name = provName;
 		namesIndex.push(myWorld.name);
 		myTable.appendChild(myWorld.toTableRow());
+		ALL_WORLDS.push(myWorld);
 	}
+}
+
+function generateWorldsCSV()
+{
+	generateWorlds();
+	var csvString = "World Name,UWP,Trade Classifications,Temperature,PBG,Stellar\r\n";
+	ALL_WORLDS.map(function(w) { csvString += w.toCSV() + "\r\n"; });
+	var blob = new Blob([csvString], {type: "text/plain;charset=utf-8"});
+	saveAs(blob, "AbbreviatedArchitectsOfWorldsForTraveller.csv");
+}
+
+function generateWorldsText()
+{
+	generateWorlds();
+	var all_worlds_string = pad("World Name",30) + pad("UWP",10) + pad("Trade Classifications",22) + pad("Temperature",25) + pad("PBG",4) + "Stellar\r\n";
+	ALL_WORLDS.map(function(w) { all_worlds_string += w.toText() + "\r\n"; });
+	var blob = new Blob([all_worlds_string], {type: "text/plain;charset=utf-8"});
+	saveAs(blob, "AbbreviatedArchitectsOfWorldsForTraveller.txt");
 }
 
 var worldNames = ["Galileo","Lubeck Lions","Asahi","Inongo","Amymone","Babek","Castalia","Newcastle","Lahurati","Naples","Bunker Hill","Indalo","Akureyri","Moruya","Cerberus","Grafton Loam","Suur Tõll","Masally","Burgos","Granger’s World","N'Djamena","Baza","Luther","Gangtok","Sardis","New Paris","Truman","Drangsnes","New Argos","New Kolkata","Belzoni Beta","Resheph One","Belton","Norwich","Dangun","New Harare","Saratoga","Epworth","Sebastopol","Haven","Ahone II","Kueyen","Saratov","Iyo","New Trinidad","Hamilton","Zhombe","Xanthi","Mengzhou","Rapa Nui","York","Juazeiro","Beja Xi","Nibiru","Erebus","Union","Polemos","Troy","New Troyes","Bat Yam","Astara","Tuli Oti","Zaba Omicron","Leipzig","Sundstrom","Amritsar","Triteia","Ioannina","Goma Delta","Deadhorse","Zangilan","Stavanger","Inverell","Inglis","Epiphron","Reutlingen","Paden Beau","Dhul Khalasa","Attis Dome","Cragus Boone","Laurits","Excelsior Springs","Ludhiana Four","Duberdicus","Jackson","Columbia","Persephone","Araraquara","Victoria","Alvorada Hold","Nixa","Mongo Lai","Medaurus","Stavropol","Saint Ann","Saint Asaph","Jehanabad","Ermoupoli","Manitoba","Malangwa","Kangiten","Lyon","Bifrost","Independence Core","Aetolia","Masi‐Manimba","Geneva","Bixby","Aihayuta","Lincoln","Lawton Ardmore","Watatsumi","Americana","Barling","Freeport","Celaeno","Caesar","Selvans","Graveyard","Eustis","Ishwarpur 11","Midway","Sallis 9","Kiyosu","Birgunj","Aglaurus","Myōken","Leto Prime","Phorbas","Sabus Prime","Golbazar","Galveston Prime","Goshen","Barsamin","Mostoles","New Hong Kong","Nyami Nyami","Anshun Saint Francis","Tamiya Toulon","Montoro","Vilbus","Bhiwandi","Admetus","Pillan Core","Meerut","Blackwelder","Aphrodite","Durius","Tansen Alpha","Fountainhead","Indra","Izanagi Seven","Teresina","Shullat","Hammerfest","Batbayar","Port Jarvis","Ramla","Abercromby","Cordoba","Plutus","Tianshui","Vogar Signa","Qena","Ganbaatar","Wuxi El Husseiniya","Uberaba","Redcliff","Horagalles","Mwaro","New Congo","New Berlin","New Tasmania","Holmberg","Tharapita","Liberty","Nagpur Indigo","Belmont Free","Sundar Haraincha","Rapti","Exeter","Satara Blud","Zhaoqing","Namtar","Monticello","Turiacus","Sao Leopoldo","Oguz","Theandrios","Stillwater","Durham Cole","Nindara Rim","Kilmichael Newton","Richmond Scone","Mobara II","Komotini","Kopervik Li","Trondheim","Loki","Kasenga B","Nyanga","Nahundi","Oneiros","Ta'lab 3","Taizhou","Yukon Sobral","Kafr Saqr","Dimona","Callahan Zou","Siegen","Sturgis","Mirandela","Zunhua Tieli","Elba Seven","Prometheus","San Borja","Edgewater","Ghorahi","Hwange","Hopkins","Osasco","Kingfisher","Ares Lusitani","Camden","Gibil","Tiberias","Oswego","Gaia","Narrabri","Mantus Grove","Nabu","Bolivar","Santiago","Ngozi","Hughes","Colcapirhua","Blackburn","Bone Gap","Otrera","Zardab","Enyo","Tangaroa","New Jerusalem","Lod","Waldron","New Smyrna","Daphne","Malabar","Freedom","Porus 2","Aiomun‐Kondi","Machedon","Lion's Den","Salisbury Tor","Jurōjin","Eilat","Gilgamesh","Waralden Olmai","Ugajin","Aernus","Book","Montes Claros","Inverness Soar","Dercetius","Pyrgos","Chizhou","Salem","Hull","Blackwater","New London","Wolverhampton","Pax Armada","Uoke","Anantapur","Dievas 4","Rongomai","Priapus","Hezuo Six","Atlantis","Armidale","Kumugwe","Windsor","McIntosh","Karura","Cabeiro","Bhanu Okazaki","Eupora","Narvik Poord","Shaki Aberdeen","Nergal","Novosibirsk","Polymatheia","Ozu Athens","Mnemosyne","Queensland Forge","Bonne Terre","Bardibas","Bloom Theta","Aita","Rangeli Seti"];
 var multiplicity_of_stars_tbl = { dice:function() {return dice(2); }, min:2, max:12, mods:[], 2:1, 3:1, 4:1, 5:1, 6:1, 7:1, 8:2, 9:2, 10:2, 11:2, 12:3 };
 var stellar_classification_tbl = { dice:function(world) {return ((world.uwp.atmos > 3 && world.uwp.atmos < 9) || world.uwp.popul > 7) ? dice(1)+2 : dice(2); }, min:2, max:12, mods:[], 2:"Unusual", 3:"F5-F9 V", 4:"G0-G4 V", 5:"G5-G9 V", 6:"K0-K4 V", 7:"K5-K9 V", 8:"M0-M1 V", 9:"M2-M3 V", 10:"M4-M5 V", 11:"M6-M7 V", 12:"M8 V" };
-var stellar_classification_companion_tbl = { dice:function(world) {return dice(1)-1; }, min:2, max:12, mods:[], 2:"Unusual", 3:"F5-F9 V", 4:"G0-G4 V", 5:"G5-G9 V", 6:"K0-K4 v", 7:"K5-K9 V", 8:"M0-M1 V", 9:"M2-M3 V", 10:"M4-M5 V", 11:"M6-M7 V", 12:"M8 V" };
+var stellar_classification_companion_tbl = { dice:function(world) {return dice(1)-1; }, min:2, max:12, mods:[], 2:"Unusual", 3:"F5-F9 V", 4:"G0-G4 V", 5:"G5-G9 V", 6:"K0-K4 V", 7:"K5-K9 V", 8:"M0-M1 V", 9:"M2-M3 V", 10:"M4-M5 V", 11:"M6-M7 V", 12:"M8 V" };
 var unusual_stars_tbl = { dice:function() {return dice(2); }, min:2, max:12, mods:[], 2:"K0-K2 III", 3:"K3-K5 III", 4:"K6-K9 III", 5:"M0-M4 III", 6:"F5-F9 IV", 7:"G0-G4 IV", 8:"G5-G9 IV", 9:"K0-K3 IV", 10:"A0-A4 V", 11:"A5-A9 V", 12:"F0-F4 V" };
 var num_gas_giants_tbl = { dice:function(world) 
 					{
@@ -85,6 +111,7 @@ var atmosTbl3 = { dice:function() {return dice(2); }, min:2, max:12, mods:[], 2:
 var atmosTbl4 = { dice:function() {return dice(2); }, min:2, max:12, mods:[], 2:1, 3:10, 4:10, 5:10, 6:10, 7:10, 8:10, 9:10, 10:11, 11:11, 12:11 };
 var atmosTbl5 = { dice:function() {return dice(2); }, min:2, max:12, mods:[], 2:1, 3:6, 4:6, 5:6, 6:6, 7:6, 8:6, 9:6, 10:6, 11:6, 12:10 };
 
+var breathable_atmos_tbl = { dice:function(someUWP) { switch(someUWP.size) { case 9: return dice(1)+1; break; case 10: return dice(1)+4; break; default: return dice(1); } }, min: 1, max: 7, mods:[], 1:[3,2], 2:[5,4], 3:[6,7], 4:[6,7], 5:[8,9], 6:[8,9], 7:[13,13] };
 
 var WORLD_PROPERTIES_TABLE = [
 [{at:function(){ return 0; }, hy:function(a){ return 0; }}, {at:function(){ return 0; }, hy:function(a){ return 0; }}, {at:function(){ return 0; }, hy:function(a){ return 0; }}, {at:function(){ return 0; }, hy:function(a){ return 0; }}, {at:function(){ return 0; }, hy:function(a){ return 0; }}, {at:function(){ return 0; }, hy:function(a){ return 0; }} ],
@@ -92,10 +119,10 @@ var WORLD_PROPERTIES_TABLE = [
 [{at:function(){ return 0; }, hy:function(a){ return 0; }}, {at:function(){ return 0; }, hy:function(a){ return 0; }}, {at:function(){ return 0; }, hy:function(a){ return 0; }}, {at:function(){ return 0; }, hy:function(a){ return 0; }}, {at:function(){ return 0; }, hy:function(a){ return 0; }}, {at:function(){ return 0; }, hy:function(a){ return 0; }} ],
 [{at:function(){ return 0; }, hy:function(a){ return 0; }}, {at:function(){ return 0; }, hy:function(a){ return 0; }}, {at:function(){ return 0; }, hy:function(a){ return 0; }}, {at:function(){ return 0; }, hy:function(a){ return 0; }}, {at:function(){ return 0; }, hy:function(a){ return 0; }}, {at:function(){ return dice(2) < 8 ? 0 : 10; }, hy:function(a){ return a=10 ? Math.max(0, dice(1)-4) : 0; }} ],
 [{at:function(){ return 1; }, hy:function(a){ return 1; }}, {at:function(){ return new dice_table(atmosTbl1).roll(); }, hy:function(a){ return (a==10 || a==11) ? Math.max(0,dice(1)-4) : 0; }}, {at:function(){ return dice(2) < 7 ? 0 : 10; }, hy:function(a){ return a==10 ? Math.max(0, dice(1)-4) : 0; }}, {at:function(){ return dice(2) < 3 ? 0: 10; }, hy:function(a){ return a==10 ? Math.max(0, dice(1)-4) : 0; }}, {at:function(){ return dice(2) < 3 ? 0 : 10; }, hy:function(a){ return a==10 ? Math.max(0, dice(1)-4) : 0; }}, {at:function(){ return dice(2) < 8 ? 0 : 10; }, hy:function(a){ return a=10 ? Math.max(0, dice(1)-4) : 0; }} ],
-[{at:function(){ return dice(2) < 6 ? 1 : 10 }, hy:function(a){ return 0; }}, {at:function(){ return new dice_table(atmosTbl2).roll(); }, hy:function(a){ return a==6 ? dice(1) : 0; }}, {at:function(){ return new dice_table(atmosTbl1).roll(); }, hy:function(a){ return (a==10 || a==11) ? Math.max(0, dice(1)-4) : 0; }}, {at:function(){ return dice(2) < 7 ? 0 : 10; }, hy:function(a){ return a==10 ? Math.max(0, dice(1)-4) : 0; }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}], 
-[{at:function(){ return dice(2) < 7 ? 10 : 11; }, hy:function(a){ return 0; }}, {at:function(){ return new dice_table(atmosTbl3).roll(); }, hy:function(a){ return a==6 ? dice(1) : 0; }}, {at:function(){ return new dice_table(atmosTbl4).roll(); }, hy:function(a){ return (a==10 || a==11) ? Math.max(0, dice(1)-4) : 0; }}, {at:function(){ return dice(2) < 3 ? 0 : 10; }, hy:function(a){ return a==10 ? Math.max(0,dice(1)-4) : 0;  }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}],
-[{at:function(){ return dice(2) < 3 ? 10 : 11; }, hy:function(a){ return 0; }}, {at:function(){ return new dice_table(atmosTbl5).roll(); }, hy:function(a){ return a==6 ? dice(1)+2 : 0; }}, {at:function(){ return new dice_table(atmosTbl4).roll(); }, hy:function(a){ return (a==10 || a==11) ? Math.max(0, dice(1)-4) : 0; }}, {at:function(){ return dice(2) < 3 ? 0 : 10; }, hy:function(a){ return a==10 ? Math.max(0,dice(1)-4) : 0; }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}],
-[{at:function(){ return 11; }, hy:function(a){ return 0; }}, {at:function(){ return dice(2) < 3 ? 1 : 6; }, hy:function(a){ return a==6 ? dice(1)+3 : 0; }}, {at:function(){ return new dice_table(atmosTbl4).roll(); }, hy:function(a){ return (a==10 || a==11) ? Math.max(0,dice(1)-4) : 0; }}, {at:function(){ return dice(2) < 3 ? 0 : 10; }, hy:function(a){ return a==10 ? Math.max(0,dice(1)-4) : 0; }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}],
+[{at:function(){ return dice(2) < 6 ? 1 : 10 }, hy:function(a){ return 0; }}, {at:function(){ return new dice_table(atmosTbl2).roll(); }, hy:function(a){ return (a==6) ? (dice(1)+2) : 0; }}, {at:function(){ return new dice_table(atmosTbl1).roll(); }, hy:function(a){ return (a==10 || a==11) ? Math.max(0, dice(1)-4) : 0; }}, {at:function(){ return dice(2) < 7 ? 0 : 10; }, hy:function(a){ return a==10 ? Math.max(0, dice(1)-4) : 0; }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}], 
+[{at:function(){ return dice(2) < 7 ? 10 : 11; }, hy:function(a){ return 0; }}, {at:function(){ return new dice_table(atmosTbl3).roll(); }, hy:function(a){ return (a==6) ? (dice(1)+2) : 0; }}, {at:function(){ return new dice_table(atmosTbl4).roll(); }, hy:function(a){ return (a==10 || a==11) ? Math.max(0, dice(1)-4) : 0; }}, {at:function(){ return dice(2) < 3 ? 0 : 10; }, hy:function(a){ return a==10 ? Math.max(0,dice(1)-4) : 0;  }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}],
+[{at:function(){ return dice(2) < 3 ? 10 : 11; }, hy:function(a){ return 0; }}, {at:function(){ return new dice_table(atmosTbl5).roll(); }, hy:function(a){ return (a==6) ? (dice(1)+2) : 0; }}, {at:function(){ return new dice_table(atmosTbl4).roll(); }, hy:function(a){ return (a==10 || a==11) ? Math.max(0, dice(1)-4) : 0; }}, {at:function(){ return dice(2) < 3 ? 0 : 10; }, hy:function(a){ return a==10 ? Math.max(0,dice(1)-4) : 0; }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}],
+[{at:function(){ return 11; }, hy:function(a){ return 0; }}, {at:function(){ return dice(2) < 3 ? 1 : 6; }, hy:function(a){ return (a==6) ? (dice(1)+3) : 0; }}, {at:function(){ return new dice_table(atmosTbl4).roll(); }, hy:function(a){ return (a==10 || a==11) ? Math.max(0,dice(1)-4) : 0; }}, {at:function(){ return dice(2) < 3 ? 0 : 10; }, hy:function(a){ return a==10 ? Math.max(0,dice(1)-4) : 0; }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}],
 [{at:function(){ return 11; }, hy:function(a){ return 0; }}, {at:function(){ return 6; }, hy:function(a){ return dice(1)+4; }}, {at:function(){ return dice(2) < 9 ? 10 : 11; }, hy:function(a){ return Math.max(0,dice(1)-4); }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4);  }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}],
 [{at:function(){ return 11; }, hy:function(a){ return 0; }}, {at:function(){ return dice(2) < 12 ? 6 : 10; }, hy:function(a){ return a==6 ? dice(1)+4 : 10; }}, {at:function(){ return dice(2) < 9 ? 10 : 11; }, hy:function(a){ return Math.max(0,dice(1)-4); }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}, {at:function(){ return 10; }, hy:function(a){ return Math.max(0,dice(1)-4); }}]
 ];
@@ -181,7 +208,7 @@ function world()
 		var cell3 = document.createElement("TD");
 		cell3.innerHTML = me.tcs;
 		var cell4 = document.createElement("TD");
-		cell4.innerHTML = me.black_body_temp.temp + "K (" + (me.black_body_temp.temp-273) + "C or " + Math.round(((me.black_body_temp.temp-273)*9/5 + 32),0) + "F)</td>";
+		cell4.innerHTML = me.black_body_temp.temp + "K (" + (me.black_body_temp.temp-273) + "C or " + Math.round(((me.black_body_temp.temp-273)*9/5 + 32),0) + "F)";
 		var cell5 = document.createElement("TD");
 		cell5.innerHTML = me.popMulti + "" + me.belts + "" + me.gas_giants;
 		var cell6 = document.createElement("TD");
@@ -194,6 +221,29 @@ function world()
 		row.appendChild(cell6);
 		return row;
 	};
+	
+	me.toCSV = function()
+	{
+		var s = me.name + ",";
+		s += me.uwp + ",";
+		s += me.tcs + ",";
+		s += me.black_body_temp.temp + ",";
+		s += me.popMulti + "" + me.belts + "" + me.gas_giants + ",";
+		s += me.primaryStar + (me.companionStar ? " " + me.companionStar : "") + ( me.secondCompanionStar ? " " + me.secondCompanionStar : "");
+		return s;		
+	}
+	
+	me.toText = function()
+	{
+		var s = pad(me.name, 30);
+		s += pad(me.uwp, 10);
+		s += pad(me.tcs, 22);
+		s += pad(me.black_body_temp.temp + "K (" + (me.black_body_temp.temp-273) + "C or " + Math.round(((me.black_body_temp.temp-273)*9/5 + 32),0) + "F)", 25);
+		s += pad(me.popMulti + "" + me.belts + "" + me.gas_giants, 4);
+		s += me.primaryStar + (me.companionStar ? " " + me.companionStar : "") + ( me.secondCompanionStar ? " " + me.secondCompanionStar : "");
+		return s;
+	}
+	
 	
 	me.generateStars = function()
 	{
@@ -239,6 +289,11 @@ function uwp(world)
 		me.size = dice(2)-2;
 		me.atmos = WORLD_PROPERTIES_TABLE[me.size][me.world.black_body_temp.code].at();
 		me.hydro = WORLD_PROPERTIES_TABLE[me.size][me.world.black_body_temp.code].hy(me.atmos);
+		if(me.atmos == 6)
+		{
+			var tempAtmos = new dice_table(breathable_atmos_tbl, null, me).roll();
+			me.atmos = dice(1) < 3 ? tempAtmos[0] : tempAtmos[1];
+		}
 		me.port = new dice_table(WORLD_STARPORT_TABLE).roll();
 		me.popul = dice(2)-2;
 		me.gov = Math.max(0,me.popul + flux());
